@@ -5,11 +5,15 @@ build mode="debug":
     cargo build -- {{ mode }}
 
 
-xtests file="*": |
-   specsheet xtests/{{ file }}.toml -O cmd.target.{{ BIN_NAME }}="${CARGO_TARGET_DIR:-../target}/debug/{{ BIN_NAME }}
+xtests file="*":
+  desc: "Run xtests"
+  run: |
+    specsheet xtests/{{ file }}.toml -O cmd.target.{{ BIN_NAME }}="${CARGO_TARGET_DIR:-../target}/debug/{{ BIN_NAME }}
 
 
-clean: cargo clean
+clean:
+  desc: "Cleanup cargo"
+  run: cargo clean
 
 lint:
   desc: "Run code linters and formatters after clean"
