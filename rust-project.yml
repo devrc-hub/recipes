@@ -1,0 +1,46 @@
+
+build mode="debug":
+  desc: "Build project"
+  run: |
+    cargo build -- {{ mode }}
+
+
+xtests file="*": |
+   specsheet xtests/{{ file }}.toml -O cmd.target.{{ BIN_NAME }}="${CARGO_TARGET_DIR:-../target}/debug/{{ BIN_NAME }}
+
+
+clean: cargo clean
+
+lint:
+  desc: "Run code linters and formatters after clean"
+  exec:
+    - cargo clippy --all -- --verbose
+    - cargo clippy --all --all-features -- --verbose
+    - cargo +nightly fmt --all -- --check
+  deps: [clean]
+
+
+test:
+  desc: "Run tests"
+  exec:
+    - cargo test
+    - cargo test --all-features
+
+
+testm mod="":
+  desc: "Test single module"
+  environment:
+    RUST_TRACEBACK: "1"
+    RUST_LOG: info
+  exec: |
+     cargo test --all-features -- --nocapture {{ mod }}
+
+
+check:
+  desc: "Run checkups"
+  deps: [clean, lint, test]
+
+format:
+  desc: "Apply code formatter"
+  exec: |
+    cargo +nightly fmt --all --
